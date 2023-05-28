@@ -285,14 +285,13 @@ const SubmissionForm = () => {
             />
           </Col>
         </FormGroup>
-        <FormGroup check row>
+        <FormGroup row>
           <Col
             sm={{
-              offset: 2,
-              size: 10,
+              size: 12,
             }}
           >
-            <div className="d-flex justify__right">
+            <div className="d-flex justify-content-sm-center justify-content-md-end">
               <Button className="submit__btn" onClick={Submit}>Submit</Button>
             </div>
           </Col>
