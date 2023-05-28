@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { config } from "../config/config";
 
 const defaultState = {
   countries: [],
@@ -17,9 +18,6 @@ export const CountryLanguageContextProvider = ({ children }) => {
   const [loadingCurrency, setLoadingCurrency] = useState(true);
   const [loadingCountry, setLoadingCountry] = useState(true);
   const effectRan = useRef(false);
-  const Country_URL = "https://restcountries.com/v3.1/all";
-  const Currency_URL =
-    "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies.min.json";
 
   useEffect(() => {
     const controller = new AbortController();
@@ -27,10 +25,14 @@ export const CountryLanguageContextProvider = ({ children }) => {
       try {
         setLoadingCountry(true);
         const fetchCountryCode = async () => {
-          const resp = await axios.get(Country_URL, {
+          const resp = await axios.get(config.COUNTRY_URL, {
             signal: controller.signal,
           });
-          setCountries(resp.data);
+          const countryNameValye = resp.data?.reduce(function (curr, next) {
+            curr.push({ name: next.name.common, value: next.name.common });
+            return curr;
+          }, []);
+          setCountries(countryNameValye);
           setLoadingCountry(false);
         };
         fetchCountryCode();
@@ -49,10 +51,17 @@ export const CountryLanguageContextProvider = ({ children }) => {
       try {
         setLoadingCurrency(true);
         const fetchCountryCode = async () => {
-          const resp = await axios.get(Currency_URL, {
+          const resp = await axios.get(config.CURRENCY_URL, {
             signal: controller.signal,
           });
-          setCurrencyCodes(resp.data);
+          let currencies = [];
+          Object.keys(resp.data).forEach((code) => {
+            currencies.push({
+              name: code.toUpperCase(),
+              value: code.toUpperCase(),
+            });
+          });
+          setCurrencyCodes(currencies);
           setLoadingCurrency(true);
         };
         fetchCountryCode();

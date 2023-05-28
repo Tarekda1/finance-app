@@ -1,14 +1,15 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Table } from "reactstrap";
-import { CountryCurrencyContext } from "../../context/CountryLanguageProvider";
+import Container from "../../components/Container/Container";
+import Title from "../../components/Title/Title";
 
 const IndexPage = () => {
   // const { countries, currencies, loadingCountry, loadingCurrency } = useContext(
   //   CountryCurrencyContext
   // );
   return (
-    <div className="m-2 container-lg">
-      <h1>Financial Submissions</h1>
+    <Container>
+      <Title>Submissions</Title>
       <Table hover>
         <thead>
           <tr>
@@ -39,7 +40,7 @@ const IndexPage = () => {
           </tr>
         </tbody>
       </Table>
-    </div>
+    </Container>
   );
 };
 
