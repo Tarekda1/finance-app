@@ -1,0 +1,15 @@
+.submit__btn {
+    width: 150px;
+    background: lightblue;
+    font-size: 20px;
+    border: none;
+}
+
+.justify__right {
+    justify-content: right;
+}
+
+.error {
+    color: red;
+    font-size: 20px;
+}

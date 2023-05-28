@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import { Form, FormGroup, Label, Col, Button } from "reactstrap";
+import moment from "moment";
 import { CountryCurrencyContext } from "../../context/CountryLanguageProvider";
 import useFormState from "../../hooks/useFormState";
 import {
@@ -13,9 +14,10 @@ import {
   StartValidity,
   EndValidity,
 } from "../FormFields/FormInputFields";
+import "./SubmissionForm.css"
 
 const SubmissionForm = () => {
-  const { countries, currencyCodes } = useContext(CountryCurrencyContext);
+  const { countries, currencyCodes, loadingCountry } = useContext(CountryCurrencyContext);
   const [error, setError] = useState({});
   const OPEC_COUNTRIES = useMemo(() => {
     return ["Saudi Arabia", "Kuwait", "United Arab Emirates"];
@@ -31,25 +33,64 @@ const SubmissionForm = () => {
     startValidity: "",
   });
 
+  const validatePeriod = useCallback(() => {
+    let startDate = moment(formState.startValidity, 'YYYY-MM-DD');
+    let endDate = moment(formState.endValidity, 'YYYY-MM-DD');
+    let duration = moment.duration(endDate.diff(startDate));
+    let years = Math.ceil(duration.asYears());
+    if (years >= 1 && years <= 3) {
+      return true;
+    }
+    return false;
+  }, [formState.endValidity, formState.startValidity])
+
+  const hasErrors = useCallback(() => {
+    if (Object.values(error).filter(Boolean).length > 0) {
+      return true;
+    }
+    return false;
+  }, [error]);
+
   const valid = useCallback(() => {
     if (Object.values(error).filter(Boolean).length > 0) {
-      console.log(error);
       return false;
     }
+    if (!validatePeriod()) {
+      alert("Invalid period");
+      return false;
+    }
+
     return true;
-  }, [error]);
+  }, [error, validatePeriod]);
+
+  const checkForm = useCallback(() => {
+    // eslint-disable-next-line 
+    for (const [key, v] of Object.entries(formState)) {
+      if (v === "") {
+        // eslint-disable-line
+        setError({ key: true })
+      }
+      else {
+        setError({ key: false })
+      }
+    }
+  }, [setError, formState]);
 
   const Submit = useCallback(
     (e) => {
       e.stopPropagation();
       e.preventDefault();
+
+      checkForm();
+
       if (!valid()) {
         console.log("Not valid");
         return;
       }
+      //OR send a post to some api
       console.log(formState);
     },
-    [valid, formState]
+    [valid, formState, checkForm]
   );
 
   const customCurrencyCb = useCallback(
@@ -106,6 +147,9 @@ const SubmissionForm = () => {
     <>
       <Form>
         <FormGroup row>
+          {hasErrors() ? <div className="error">Invalid data, please check you input</div> : <div></div>}
+        </FormGroup>
+        <FormGroup row>
           <Label for="name" sm={2}>
             Name
           </Label>
@@ -145,11 +189,13 @@ const SubmissionForm = () => {
             Country of Origin
           </Label>
           <Col sm={10}>
-            <Country
-              options={countries}
-              formState={formState}
-              onChange={customCountryCb}
-            />
+            {loadingCountry ? "Loading ..." :
+              <Country
+                options={countries}
+                formState={formState}
+                onChange={customCountryCb}
+              />
+            }
           </Col>
         </FormGroup>
         <FormGroup row>
@@ -246,7 +292,9 @@ const SubmissionForm = () => {
               size: 10,
             }}
           >
-            <Button onClick={Submit}>Submit</Button>
+            <div className="d-flex justify__right">
+              <Button className="submit__btn" onClick={Submit}>Submit</Button>
+            </div>
           </Col>
         </FormGroup>
       </Form>

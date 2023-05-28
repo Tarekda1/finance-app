@@ -12,7 +12,6 @@ const defaultState = {
 export const CountryCurrencyContext = createContext(defaultState);
 
 export const CountryLanguageContextProvider = ({ children }) => {
-  // fetches business customer and updates the context
   const [countries, setCountries] = useState();
   const [currencyCodes, setCurrencyCodes] = useState();
   const [loadingCurrency, setLoadingCurrency] = useState(true);
@@ -22,21 +21,27 @@ export const CountryLanguageContextProvider = ({ children }) => {
   useEffect(() => {
     const controller = new AbortController();
     if (effectRan.current === true) {
-      try {
-        setLoadingCountry(true);
-        const fetchCountryCode = async () => {
+      setLoadingCountry(true);
+      const fetchCountryCode = async () => {
+        try {
+
           const resp = await axios.get(config.COUNTRY_URL, {
+            headers: {
+              'Authorization': `Bearer ${config.COUNTRY_KEY}`
+            },
             signal: controller.signal,
           });
-          const countryNameValye = resp.data?.reduce(function (curr, next) {
-            curr.push({ name: next.name.common, value: next.name.common });
+          const countryNameValye = Object.values(resp?.data).reduce(function (curr, next) {
+            curr.push({ name: next.name, value: next.name });
             return curr;
           }, []);
           setCountries(countryNameValye);
           setLoadingCountry(false);
-        };
-        fetchCountryCode();
-      } catch (error) {}
+        } catch (error) {
+          console.log(error)
+        }
+      };
+      fetchCountryCode();
     }
     return () => {
       console.log("unmount");
@@ -65,7 +70,7 @@ export const CountryLanguageContextProvider = ({ children }) => {
           setLoadingCurrency(true);
         };
         fetchCountryCode();
-      } catch (error) {}
+      } catch (error) { }
     }
     return () => {
       console.log("unmount");

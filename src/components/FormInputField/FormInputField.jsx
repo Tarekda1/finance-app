@@ -53,7 +53,7 @@ const FormInputField = ({
   }, [focused, validate]);
 
   // This is needed to trigger events on paste, if not defined validation doesn't work
-  const onPasteCb = useCallback(() => {}, []);
+  const onPasteCb = useCallback(() => { }, []);
 
   const onChangeCb = useCallback(
     (e) => {
@@ -65,12 +65,6 @@ const FormInputField = ({
     },
     [validateFn, onChange, validationError]
   );
-
-  // update native HTML element validation
-  // this could be used to check validity on entire forms
-  //   useEffect(() => {
-  //     inputEl?.current?.setCustomValidity(error);
-  //   }, [inputEl, error]);
 
   return (
     <>
