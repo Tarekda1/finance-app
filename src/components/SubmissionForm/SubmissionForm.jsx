@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useMemo, useState } from "react";
 import { Form, FormGroup, Label, Col, Button } from "reactstrap";
 import moment from "moment";
 import { CountryCurrencyContext } from "../../context/CountryLanguageProvider";
+import { SubmissionsContext } from "../../context/SubmissionProvider";
 import useFormState from "../../hooks/useFormState";
 import {
   Country,
@@ -14,11 +15,16 @@ import {
   StartValidity,
   EndValidity,
 } from "../FormFields/FormInputFields";
-import "./SubmissionForm.css"
+import "./SubmissionForm.css";
+import { useNavigate } from "react-router-dom";
 
 const SubmissionForm = () => {
-  const { countries, currencyCodes, loadingCountry } = useContext(CountryCurrencyContext);
+  const { countries, currencyCodes, loadingCountry } = useContext(
+    CountryCurrencyContext
+  );
+  const { addHandler } = useContext(SubmissionsContext);
   const [error, setError] = useState({});
+  const navigate = useNavigate();
   const OPEC_COUNTRIES = useMemo(() => {
     return ["Saudi Arabia", "Kuwait", "United Arab Emirates"];
   }, []);
@@ -34,15 +40,21 @@ const SubmissionForm = () => {
   });
 
   const validatePeriod = useCallback(() => {
-    let startDate = moment(formState.startValidity, 'YYYY-MM-DD');
-    let endDate = moment(formState.endValidity, 'YYYY-MM-DD');
+    let startDate = moment(formState.startValidity, "YYYY-MM-DD");
+    let endDate = moment(formState.endValidity, "YYYY-MM-DD");
     let duration = moment.duration(endDate.diff(startDate));
     let years = Math.ceil(duration.asYears());
+
+    // start day should be no less than 15 days from now
+    if (moment().diff(startDate, "days") > 15) {
+      return false;
+    }
+    //validity period should be between 1 and 3 years
     if (years >= 1 && years <= 3) {
       return true;
     }
     return false;
-  }, [formState.endValidity, formState.startValidity])
+  }, [formState.endValidity, formState.startValidity]);
 
   const hasErrors = useCallback(() => {
     if (Object.values(error).filter(Boolean).length > 0) {
@@ -64,14 +76,13 @@ const SubmissionForm = () => {
   }, [error, validatePeriod]);
 
   const checkForm = useCallback(() => {
-    // eslint-disable-next-line 
+    // eslint-disable-next-line
     for (const [key, v] of Object.entries(formState)) {
       if (v === "") {
         // eslint-disable-line
-        setError({ key: true })
-      }
-      else {
-        setError({ key: false })
+        setError({ key: true });
+      } else {
+        setError({ key: false });
       }
     }
   }, [setError, formState]);
@@ -88,9 +99,11 @@ const SubmissionForm = () => {
         return;
       }
       //OR send a post to some api
+      addHandler(formState);
       console.log(formState);
+      navigate("/", { replace: true });
     },
-    [valid, formState, checkForm]
+    [valid, formState, checkForm, addHandler, navigate]
   );
 
   const customCurrencyCb = useCallback(
@@ -147,7 +160,11 @@ const SubmissionForm = () => {
     <>
       <Form>
         <FormGroup row>
-          {hasErrors() ? <div className="error">Invalid data, please check you input</div> : <div></div>}
+          {hasErrors() ? (
+            <div className="error">Invalid data, please check you input</div>
+          ) : (
+            <div></div>
+          )}
         </FormGroup>
         <FormGroup row>
           <Label for="name" sm={2}>
@@ -189,13 +206,15 @@ const SubmissionForm = () => {
             Country of Origin
           </Label>
           <Col sm={10}>
-            {loadingCountry ? "Loading ..." :
+            {loadingCountry ? (
+              "Loading ..."
+            ) : (
               <Country
                 options={countries}
                 formState={formState}
                 onChange={customCountryCb}
               />
-            }
+            )}
           </Col>
         </FormGroup>
         <FormGroup row>
@@ -292,7 +311,9 @@ const SubmissionForm = () => {
             }}
           >
             <div className="d-flex justify-content-sm-center justify-content-md-end">
-              <Button className="submit__btn" onClick={Submit}>Submit</Button>
+              <Button className="submit__btn" onClick={Submit}>
+                Submit
+              </Button>
             </div>
           </Col>
         </FormGroup>

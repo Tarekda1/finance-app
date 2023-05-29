@@ -1,12 +1,14 @@
-import React from "react";
-import { Table } from "reactstrap";
+import React, { useContext } from "react";
+import { Table, Button } from "reactstrap";
+import { useNavigate } from "react-router-dom";
+import { SubmissionsContext } from "../../context/SubmissionProvider";
 import Container from "../../components/Container/Container";
 import Title from "../../components/Title/Title";
+import "./index.css";
 
 const IndexPage = () => {
-  // const { countries, currencies, loadingCountry, loadingCurrency } = useContext(
-  //   CountryCurrencyContext
-  // );
+  const { submissionsState } = useContext(SubmissionsContext);
+  const navigate = useNavigate();
   return (
     <Container>
       <Title>Submissions</Title>
@@ -14,30 +16,46 @@ const IndexPage = () => {
         <thead>
           <tr>
             <th>#</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Username</th>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>country</th>
+            <th>currency</th>
+            <th>amount</th>
+            <th>description</th>
+            <th>project code</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <th scope="row">3</th>
-            <td>Larry</td>
-            <td>the Bird</td>
-            <td>@twitter</td>
-          </tr>
+          {submissionsState.length > 0 ? (
+            submissionsState.map((submission, index) => {
+              return (
+                <tr key={`submissions__${index}`}>
+                  <th scope="row">{index}</th>
+                  <td>{submission.name}</td>
+                  <td>{submission.surname}</td>
+                  <td>{submission.country}</td>
+                  <td>{submission.currency}</td>
+                  <td>{submission.amount}</td>
+                  <td>{submission.description}</td>
+                  <td>{submission.projectCode}</td>
+                </tr>
+              );
+            })
+          ) : (
+            <tr key={`no__submissions`}>
+              <td align="center" colSpan={8}>
+                <span style={{ paddingRight: "10px" }}>
+                  No submissions yet!
+                </span>
+                <Button
+                  className="no__border_btn"
+                  onClick={() => navigate("/createSubmission")}
+                >
+                  Create Submission
+                </Button>
+              </td>
+            </tr>
+          )}
         </tbody>
       </Table>
     </Container>

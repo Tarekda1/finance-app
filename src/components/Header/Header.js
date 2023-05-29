@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Navbar,
   NavbarBrand,
@@ -13,15 +14,18 @@ import "./header.css";
 const Header = ({ args }) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
+  const navigate = useNavigate();
   return (
     <div>
       <Navbar className="navbar" expand="md" {...args}>
-        <NavbarBrand href="/">Noema Finance</NavbarBrand>
+        <NavbarBrand onClick={() => navigate("/")}>Noema Finance</NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="me-auto" navbar>
             <NavItem>
-              <NavLink href="/createSubmission">New Finance Submission</NavLink>
+              <NavLink onClick={() => navigate("/createSubmission")}>
+                New Finance Submission
+              </NavLink>
             </NavItem>
           </Nav>
         </Collapse>
